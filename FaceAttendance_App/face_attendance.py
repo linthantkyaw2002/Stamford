@@ -52,8 +52,15 @@ N_NEIGHBORS = 5
 ATTENDANCE_COOLDOWN = 60
 
 # Initialize Global AI Models
+# Initialize Global AI Models
 detector_mtcnn = MTCNN()
-embedder = FaceNet()
+
+if getattr(sys, 'frozen', False):
+    base_path = Path(sys._MEIPASS)
+else:
+    base_path = Path(__file__).resolve().parent
+
+embedder = FaceNet(cache_folder=str(base_path / "models"))
 l2_norm = Normalizer(norm='l2')
 mp_mesh = mp.solutions.face_mesh
 mp_fd = mp.solutions.face_detection

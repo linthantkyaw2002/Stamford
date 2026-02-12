@@ -24,7 +24,9 @@ all_datas = (
     + mtcnn_datas
     + kf_datas
     + sk_datas
+    + [("models", "models")]
 )
+
 
 hidden_imports = set(
     mp_hidden
