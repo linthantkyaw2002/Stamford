@@ -1,7 +1,7 @@
 # FaceAttendance — macOS Standalone App Build Guide (Apple Silicon)
 Author: Lin Thant Kyaw
 Project: FaceAttendance at Stamford International University
-Full package google drive: https://drive.google.com/file/d/1wU3xUCG_f6R7FmmYQKFhqWK1V9yZymGN/view?usp=sharing
+Full package google drive: https://drive.google.com/file/d/1JckglyiHHowW37XRxCigZFvyERkv7sab/view?usp=sharing
 
 This document provides a complete, professional, and reproducible guide for converting the **FaceAttendance** Python application into a native **macOS `.app` bundle** on **Apple Silicon (M1/M2)**.
 
