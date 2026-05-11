@@ -48,12 +48,9 @@ It includes animated sections, Bootstrap components, and smooth transitions for 
    http://localhost/portfolio/
    ```
 
-## 🖼️ Screenshot
-![Portfolio Preview](background.png)
-
 ## 📬 Contact
 **Author:** Lin Thant Kyaw  
-**Email:** your-email@example.com  
+**Email:** linthantkyaw2002@gmail.com  
 **LinkedIn:** linkedin.com/in/linthantkyaw  
 **GitHub:** github.com/linthantkyaw
 
