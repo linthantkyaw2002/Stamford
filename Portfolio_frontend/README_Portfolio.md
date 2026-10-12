@@ -51,7 +51,7 @@ It includes animated sections, Bootstrap components, and smooth transitions for 
 ## 📬 Contact
 **Author:** Lin Thant Kyaw  
 **Email:** linthantkyaw2002@gmail.com  
-**LinkedIn:** www.linkedin.com/in/lin-thant-kyaw-77894b3a5 
+**LinkedIn:** www.linkedin.com/in/lin-thant-kyaw-77894b3a5
 **GitHub:** https://github.com/linthantkyaw2002
 
 ---
