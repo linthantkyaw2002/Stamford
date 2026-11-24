@@ -1,6 +1,5 @@
 # Smart Garden — IoT-Based Plant Monitoring & Irrigation
 
-![ESP32](https://img.shields.io/badge/ESP32-Embedded%20Systems-167a70) ![Arduino](https://img.shields.io/badge/Arduino-C%2B%2B-00979D) ![Blynk](https://img.shields.io/badge/Blynk-IoT-23C48E)
 
 An ESP32-based smart gardening prototype that combines environmental sensing, automated irrigation, local LCD feedback, and remote monitoring through Blynk IoT. Developed as a group project for ITE233 — Introduction to Internet of Things at Stamford International University (October 2025).
 
@@ -46,9 +45,20 @@ The report estimates the prototype cost at approximately THB 600–700 in 2025.
 
 ## ESP32 connection diagrams
 
-![ESP32 signal connections](assets/esp32-connections.svg)
+```mermaid
+flowchart LR
+    S[Soil sensor AO] -->|GPIO34| E[ESP32]
+    W[Water sensor AO] -->|GPIO35| E
+    P[HC-SR501 OUT] -->|GPIO19| E
+    E -->|GPIO23| V[Soil and water sensor VCC]
+    E -->|GPIO26| R[Relay IN1]
+    E -->|GPIO18| B[Buzzer SIG]
+    E <-->|GPIO21 SDA / GPIO22 SCL| L[16x2 I2C LCD]
+    E -->|GPIO27| T[LCD switching stage]
+    T -.-> L
+```
 
-The vector diagram reconstructs the signal assignments from the report's physical design table (page 10) and the supplied V1 firmware. It is a logical connection drawing, not a verified physical header layout or a simulated circuit.
+The connection diagram reconstructs the signal assignments from the report's physical design table (page 10) and the supplied V1 firmware. It is a logical connection drawing, not a verified physical header layout or a simulated circuit.
 
 | ESP32 GPIO | Component terminal | Function |
 |---|---|---|
@@ -64,7 +74,27 @@ The vector diagram reconstructs the signal assignments from the report's physica
 
 ### Power and relay wiring
 
-![Power and relay contact topology](assets/power-relay.svg)
+```mermaid
+flowchart LR
+    V[Rated pump supply +] --> C[Relay COM]
+    C -. switched contact .-> N[Relay NO]
+    N --> M[Pump + / motor / Pump -]
+    M --> G[Pump supply -]
+    E[ESP32 GPIO26] -->|Active LOW| R[Relay IN1 / driver]
+    R -. actuates .-> C
+```
+
+```mermaid
+flowchart LR
+    V[Regulated board-approved supply] --> E[ESP32 board]
+    F[5 V module supply as reported] --> P[PIR / Relay / Buzzer]
+    F --> L[LCD VCC]
+    E -->|GPIO27| T[LCD ground switching stage]
+    L -->|LCD GND| T
+    T --> G[Logic ground]
+    E --> G
+    P --> G
+```
 
 The report specifies 5 V for the PIR, relay module, buzzer and LCD, common ground for the logic modules, and pump positive through the relay's normally open (NO) contact. Pump supply positive connects to COM; pump negative returns to its supply negative. GPIO27 controls an LCD ground-switching transistor in the firmware, although its exact type, resistor values and circuit are not specified in the report.
 
@@ -88,23 +118,27 @@ The report specifies 5 V for the PIR, relay module, buzzer and LCD, common groun
 Raw ADC thresholds are prototype calibration values, not moisture percentages. Recalibrate for the actual sensors and soil.
 
 ```mermaid
-flowchart TD
-    A[Initialize Wi-Fi, Blynk and hardware] --> B[Main loop]
-    B --> C{PIR HIGH?}
-    C -- Yes --> D[Publish V7 and sound buzzer for 20 s]
-    C -- No --> E{Pump active and time elapsed or cached water low?}
-    D --> E
-    E -- Yes --> F[Stop pump and restore LCD; log no_water if low]
-    E -- No --> G{Sensor interval elapsed?}
-    F --> G
-    G -- Yes --> H[Power sensors, sample ADC, publish V4/V5]
-    H --> I{Dry soil, sufficient water, pump idle?}
-    I -- Yes --> J[Disable LCD, enable relay, publish V6]
-    I -- No --> K[Refresh LCD if idle and due]
-    J --> K
-    G -- No --> K
-    K --> B
+flowchart LR
+    A[Blynk.run] --> B{PIR HIGH?}
+    B -->|Yes| C[V7 + buzzer 20 s]
+    B -->|No| D{Pump stop due?}
+    C --> D
+    D -->|Yes| E[Stop pump / restore LCD]
+    D -->|No| F[Check sampling timer]
+    E --> F
+    F --> A
 ```
+
+```mermaid
+flowchart LR
+    A[Sample ADC every 10 s nominally] --> B[Update V4 / V5 and LCD]
+    B --> C{Dry soil and water available and pump idle?}
+    C -->|Yes| D[Disable LCD / start pump]
+    C -->|No| E[Return to loop]
+    D --> E
+```
+
+Pump stop is due when the pump is active and either 30 seconds have elapsed or the cached water reading is at most 600. On stopping, the firmware logs `no_water` if the cached water is low.
 
 ### Key functions
 
@@ -147,14 +181,11 @@ Create the event code `no_water` and configure notification/email delivery in Bl
 ```text
 SmartGarden/
 ├── README.md
-├── Smart_Garden_V1/
-│   └── Smart_Garden_V1.ino
-└── assets/
-    ├── esp32-connections.svg
-    └── power-relay.svg
+└── Smart_Garden_V1/
+    └── Smart_Garden_V1.ino
 ```
 
-The included sketch is the original V1 logic with credentials replaced by placeholders. The original project report is not bundled because its screenshots contain credentials and student identifiers.
+All diagrams are embedded as GitHub-native Mermaid blocks; no external image files are needed. Before publishing the sketch or report, remove credentials and personal identifiers. Rotate any exposed credentials.
 
 ## Prototype results and engineering challenges
 
